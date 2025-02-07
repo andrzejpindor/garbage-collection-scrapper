@@ -19,11 +19,13 @@ def get_waste_schedule():
     return response.json()
 
 FRACTION_EMOJIS = {
-    1: "\U0001F5D1\U0001F9F9 Zmieszane",  # 🗑🧹
-    2: "\U0001F5D1\U0001F5FF Szkło",     # 🗑🗿
-    3: "\U0001F5D1\U0001F4DA Papier",    # 🗑📚
-    4: "\U0001F5D1\U0001F6E2 Plastik",   # 🗑🛢
-    5: "\U0001F5D1\U0001F331 Bio",       # 🗑🌱
+    1: "\U0001F5D1\U0001F9F9 Zmieszane",      # 🗑🧹
+    2: "\U0001F5D1\U0001F5FF Szkło",          # 🗑🗿
+    3: "\U0001F5D1\U0001F4DA Papier",         # 🗑📚
+    4: "\U0001F5D1\U0001F6E2 Plastik",        # 🗑🛢
+    5: "\U0001F5D1\U0001F331 Bio",            # 🗑🌱
+    6: "\U0001F6CB\U0000FE0F Gabaryty",       # 🗑🛋️
+    7: "\U0001F6CB\U0001F6DE Gabaryty",       # 🗑🛞
 }
 
 def convert_to_ics(waste_data):
