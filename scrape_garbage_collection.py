@@ -1,5 +1,7 @@
 import requests
 import datetime
+import json
+import uuid
 
 def get_waste_schedule():
     base_url = "https://bip.jaktorow.pl/odpady-komunalne/getterminy/"
@@ -29,12 +31,26 @@ FRACTION_EMOJIS = {
 }
 
 def convert_to_ics(waste_data):
-    ics_content = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//WasteSchedule//EN\n"
+    ics_content = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//WasteSchedule//EN\r\n"
     for entry in waste_data:
         title = FRACTION_EMOJIS.get(entry["fraction"], "Wywóz śmieci")
         event_date = entry["start"].replace("-", "")
-        ics_content += f"BEGIN:VEVENT\nSUMMARY:{title}\nDTSTART;VALUE=DATE:{event_date}\nDTEND;VALUE=DATE:{event_date}\nEND:VEVENT\n"
-    ics_content += "END:VCALENDAR"
+        uid = str(uuid.uuid4())
+        dtstamp = datetime.datetime.now(datetime.UTC).strftime("%Y%m%dT%H%M%SZ")
+        
+        ics_content += f"BEGIN:VEVENT\r\nUID:{uid}\r\nDTSTAMP:{dtstamp}\r\nSUMMARY:{title}\r\nDTSTART;VALUE=DATE:{event_date}\r\nDTEND;VALUE=DATE:{event_date}\r\n"
+        
+        # Przypomnienia dla frakcji 1-5: dzień wcześniej o 17:00
+        if entry["fraction"] in [1, 2, 3, 4, 5]:
+            ics_content += f"BEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-P0DT7H0M0S\r\nDESCRIPTION:Przypomnienie o wywozie\r\nEND:VALARM\r\n"
+        
+        # Przypomnienia dla frakcji 6-7: 2 tygodnie wcześniej i dzień wcześniej o 17:00
+        if entry["fraction"] in [6, 7]:
+            ics_content += f"BEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-P13DT7H0M0S\r\nDESCRIPTION:Przypomnienie o wywozie\r\nEND:VALARM\r\n"
+            ics_content += f"BEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-P0DT7H0M0S\r\nDESCRIPTION:Przypomnienie o wywozie\r\nEND:VALARM\r\n"
+        
+        ics_content += "END:VEVENT\r\n"
+    ics_content += "END:VCALENDAR\r\n"
     return ics_content
 
 if __name__ == "__main__":
@@ -44,4 +60,4 @@ if __name__ == "__main__":
     with open("waste_schedule.ics", "w", encoding="utf-8") as f:
         f.write(ics_data)
     
-    print("Exported to 'waste_schedule.ics'")
+    print("Terminy wywozu śmieci zapisano w 'waste_schedule.ics'")
